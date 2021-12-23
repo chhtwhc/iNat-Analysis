@@ -52,5 +52,4 @@ shinyUI(fluidPage(
     mainPanel(
       leafletOutput("map", height = 750) %>% withSpinner(type = 6))
   )
-)
 ))
