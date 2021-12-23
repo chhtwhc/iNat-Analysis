@@ -1,0 +1,11 @@
+library(shiny)
+library(leaflet)
+library(mapview)
+library(shinycssloaders)
+library(dplyr)
+library(shinyalert)
+library(showtext)
+library(readxl)
+library(plotly)
+
+showtext_auto(enable = TRUE)
