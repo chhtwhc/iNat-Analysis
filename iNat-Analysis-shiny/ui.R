@@ -22,12 +22,34 @@ shinyUI(fluidPage(
   sidebarLayout(
     # Add sidebar
     sidebarPanel(
-      # Add a select input -- 面量圖底圖
+      # Add a select input
       selectInput(
         inputId = "BaseMap",
         label = h4("底圖"),
-        choices = c("平均收入", "平均年齡", "物種記錄總筆數"),
+        choices = c("年收入", "兒童比例", "青壯年比例", "老年比例", "物種記錄總筆數"),
         selected = "物種記錄總筆數"),
+      # Add a select input
+      selectInput(
+        inputId = "SpatialScale",
+        label = h4("空間尺度"),
+        choices = c("鄉鎮市區", "縣市", "台灣各區", "全國"),
+        selected = "物種記錄總筆數"),
+      # Add a select input
+      selectInput(
+        inputId = "Line",
+        label = h4("折線圖"),
+        choices = c("年變化", "月變化", "日變化"),
+        selected = "物種記錄總筆數"),
+      # Add a select input
+      selectInput(
+        inputId = "Bar",
+        label = h4("長條圖"),
+        choices = c("年間差異", "月間差異", "週間差異", "日間差異", "時間差異"),
+        selected = "物種記錄總筆數"),
+      # Add a date range input
+      dateRangeInput(
+        inputId = "DateRange",
+        label = h3("時間範圍"))
     ),
     
     mainPanel(
