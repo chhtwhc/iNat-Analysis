@@ -32,19 +32,19 @@ shinyUI(fluidPage(
       selectInput(
         inputId = "SpatialScale",
         label = h4("空間尺度"),
-        choices = c("鄉鎮市區", "縣市", "台灣各區", "全國"),
+        choices = c("County", "Town", "Region", "NationWide"),
         selected = "物種記錄總筆數"),
       # Add a select input
       selectInput(
         inputId = "Line",
-        label = h4("折線圖"),
-        choices = c("年變化", "月變化", "日變化"),
+        label = h4("Line Plot"),
+        choices = c("Overall", "Year", "Month", "Weekday", "Hour"),
         selected = "物種記錄總筆數"),
       # Add a select input
       selectInput(
-        inputId = "Bar",
-        label = h4("長條圖"),
-        choices = c("年間差異", "月間差異", "週間差異", "日間差異", "時間差異"),
+        inputId = "BarTime",
+        label = h4("Bar Plot"),
+        choices = c("Overall", "Year", "Month", "Weekday", "Hour"),
         selected = "物種記錄總筆數"),
       # Add a date range input
       dateRangeInput(
@@ -53,6 +53,6 @@ shinyUI(fluidPage(
     ),
     
     mainPanel(
-      plotOutput("plot", height = 750) %>% withSpinner(type = 6))
+      plotOutput("bar", height = 750) %>% withSpinner(type = 6))
   )
 ))
