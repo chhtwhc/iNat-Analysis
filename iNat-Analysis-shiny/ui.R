@@ -32,13 +32,13 @@ shinyUI(fluidPage(
       selectInput(
         inputId = "SpatialScale",
         label = h4("Spatial Scale"),
-        choices = c("NationWide", "Region", "County"),
+        choices = c("NationWide", "Region", "County", "Town"),
         selected = "County"),
       # Add a select input
       selectInput(
-        inputId = "LineTime",
+        inputId = "Line",
         label = h4("Line Plot"),
-        choices = c("Overall", "Year", "Month", "Day", "Hour"),
+        choices = c("Overall", "Year", "Month", "Weekday", "Hour"),
         selected = "Year"),
       # Add a select input
       selectInput(
@@ -53,8 +53,7 @@ shinyUI(fluidPage(
     ),
     
     mainPanel(
-      plotlyOutput("line", height = 750) %>% withSpinner(type = 6),
       plotOutput("bar", height = 750) %>% withSpinner(type = 6),
-      plotlyOutput("Heatmap", height = 750) %>% withSpinner(type = 6))
+      plotOutput("line", height = 750) %>% withSpinner(type = 6))
   )
 ))
