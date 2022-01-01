@@ -1,7 +1,5 @@
 # Setting environment
 library(shiny)
-library(leaflet)
-library(mapview)
 library(shinycssloaders)
 library(tidyverse)
 library(shinyalert)
@@ -11,7 +9,6 @@ library(plotly)
 library(sf)
 library(xts)
 library(TSstudio)
-library(esquisse)
 library(magick)
 library(spdep)
 library(spdplyr)
@@ -19,6 +16,7 @@ library(gganimate)
 library(transformr)
 
 showtext_auto(enable = TRUE)
+options(scipen = 999)
 
 # setwd("D:/CHU 2.0/Forest/110-1 Space Time data Viz/Term Project/iNat-Analysis/iNat-Analysis-shiny")  # 上傳到 Shiny 時記得註解掉
 
@@ -470,26 +468,41 @@ if (TRUE){
                              ifelse(County %in% regionM, "中部", 
                                     ifelse(County %in% regionE, "東部", "南部")))) %>% 
       mutate(Nation = "Taiwan") %>% 
-      select(-TotalTax)
+      select(-TotalTax) %>% 
+      rename(Income = MeanTax)
     # population data, 2015 only
     pop = read_xlsx("../Data/Data.xlsx", sheet = "Population") %>% 
-      rename(County = COUNTY, Town = TOWN) %>% 
+      rename(County = COUNTY, Town = TOWN, TotalPopulation = TotalPop) %>% 
       mutate(Region = ifelse(County %in% regionN, "北部", 
                              ifelse(County %in% regionM, "中部", 
                                     ifelse(County %in% regionE, "東部", "南部")))) %>% 
       mutate(Nation = "Taiwan", Year = 2020)
     # Data list
     ChoroList = list(
-      Doctor = edu %>% select(-c(Master, Undergraduate, Highschool, Midschool)),
-      Master = edu %>% select(-c(Doctor, Undergraduate, Highschool, Midschool)),
-      Undergraduate = edu %>% select(-c(Master, Doctor, Highschool, Midschool)),
-      Highschool = edu %>% select(-c(Master, Doctor, Undergraduate, Midschool)),
-      Midschool = edu %>% select(-c(Master, Doctor, Undergraduate, Highschool)),
-      Income = income,
-      KidRatio = pop %>% select(Year, Nation, Region, Town, County, KidRatio),
-      AdultRatio = pop %>% select(Year, Nation, Region, Town, County, AdultRatio),
-      OldRatio = pop %>% select(Year, Nation, Region, Town, County, OldRatio),
-      TotalPopulation = pop %>% select(Year, Nation, Region, Town, County, TotalPop)
+      content = list(
+        Doctor = edu %>% select(-c(Master, Undergraduate, Highschool, Midschool)),
+        Master = edu %>% select(-c(Doctor, Undergraduate, Highschool, Midschool)),
+        Undergraduate = edu %>% select(-c(Master, Doctor, Highschool, Midschool)),
+        Highschool = edu %>% select(-c(Master, Doctor, Undergraduate, Midschool)),
+        Midschool = edu %>% select(-c(Master, Doctor, Undergraduate, Highschool)),
+        Income = income,
+        KidRatio = pop %>% select(Year, Nation, Region, Town, County, KidRatio),
+        AdultRatio = pop %>% select(Year, Nation, Region, Town, County, AdultRatio),
+        OldRatio = pop %>% select(Year, Nation, Region, Town, County, OldRatio),
+        TotalPopulation = pop %>% select(Year, Nation, Region, Town, County, TotalPopulation)
+      ),
+      mapPoly = list(
+        Nationwide = taiNation,
+        Region = taiRegion,
+        County = taiCounty,
+        Town = taiTown
+      ),
+      mapPt = list(
+        Nationwide = taiNationCen,
+        Region = taiRegionCen,
+        County = taiCountyCen,
+        Town = taiTownCen
+      )
     )
   }
 }
@@ -532,42 +545,36 @@ shinyServer(function(input, output) {
   output$choropleth = renderImage({
     outfile = tempfile(fileext = ".gif")  # A temp file to save the output and will be removed later by renderImage
     
-    if (TRUE){
-      edu = read_xlsx("../Data/Data.xlsx", sheet = "Education") %>% 
-        select(-Town) %>% 
-        group_by(Year, County) %>% 
-        summarise(Doctor = sum(Doctor),
-                  Master = sum(Master),
-                  Undergraduate = sum(Undergraduate),
-                  Highschool = sum(Highschool),
-                  Midschool = sum(Midschool)) %>% 
-        select(-c(Master, Undergraduate, Highschool, Midschool)) %>% 
-        mutate(Year = Year + 1911)
-      
-      taiCounty = st_read("../Data/TaiCounty_4326.shp", options = "ENCODING=UTF-8")
-      colnames(taiCounty) = c("County", "geometry")
-      head(taiCounty)
-      
-      taiCountyCen = st_read("../Data/TaiCountyCen_4326.shp", options = "ENCODING=UTF-8")
-      colnames(taiCountyCen) = c("County", "geometry")
-      
-      taiCountyEdu = left_join(taiCounty, edu)
-      taiCountyCenEdu = right_join(taiCountyCen, obsCountyYear)
-    }
+    # prepare the data for animation
+    choroData = ChoroList[["content"]][[input$BaseMap]]
+    choroMapPoly = ChoroList[["mapPoly"]][[input$SpatialScale]]
+    choroObs = obsSTList[[input$SpatialScale]][["Year"]] %>% 
+      filter(Year >= min(choroData$Year) & Year <= max(choroData$Year))
+    choroMapPt = ChoroList[["mapPt"]][[input$SpatialScale]]
     
+    colnames(choroData)[which(colnames(choroData) == input$BaseMap)] = "Value"
+    
+    choroData$Value = scale(choroData$Value) %>% as.vector()
+    choroData$Value = choroData$Value * 100
+    
+    choroBaseMap = left_join(choroMapPoly, choroData)
+    choroPt = right_join(choroMapPt, choroObs)
+  
+    # Draw the animate
     p = ggplot() +
-      geom_sf(data = taiCountyEdu, aes(fill = log(Doctor))) +
-      geom_sf(data = taiCountyCenEdu, aes(size = TotalObs), color = "red", alpha = 0.5) +
-      coord_sf(crs = st_crs(taiCountyEdu)) +
+      geom_sf(data = choroBaseMap, aes(fill = Value)) +
+      geom_sf(data = choroPt, aes(size = TotalObs), color = "red", alpha = 0.5) +
+      coord_sf(crs = st_crs(choroBaseMap)) +
       theme_void() +
-      scale_fill_continuous(n.breaks = 8) +
+      scale_fill_continuous(n.breaks = 6) +
       # gganimate
       transition_manual(Year) +
-      labs(title = "Number of doctor in Year {current_frame}")
-    
+      labs(title = paste(input$BaseMap, "in Year {current_frame}"))
+
+    # Output the animate to ui.R
     anim_save("outfile.gif", animate(p))
-    
     list(src = "outfile.gif", contentType = 'image/gif', height = 750)
+    
   }, deleteFile = TRUE)
   
 })

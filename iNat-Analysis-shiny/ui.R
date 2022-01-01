@@ -1,7 +1,5 @@
 # Setting environment
 library(shiny)
-library(leaflet)
-library(mapview)
 library(shinycssloaders)
 library(dplyr)
 library(shinyalert)
@@ -17,40 +15,47 @@ options(spinner.color = "#0275D8", spinner.color.background = "#ffffff", spinner
 # Build Shiny UI
 shinyUI(fluidPage(
   
-  titlePanel("用 iNaturalist 推測台灣公民科學家的特色"),
+  titlePanel("Use data from iNaturalist to know feature of citizen scientists in Taiwan"),
   
   sidebarLayout(
     # Add sidebar
     sidebarPanel(
-      # Add a select input
-      selectInput(
-        inputId = "BaseMap",
-        label = h4("Base Map"),
-        choices = c("Doctor", "Master", "Undergraduate", "Highschool", "Midschool", "Income", "KidRatio", "AdultRatio", "OldRatio", "TotalPopulation"),
-        selected = "Doctor"),
-      # Add a select input
+      # Add a select input for spatial scale
       selectInput(
         inputId = "SpatialScale",
         label = h4("Spatial Scale"),
         choices = c("NationWide", "Region", "County"),
         selected = "County"),
-      # Add a select input
+      # Add a select input for line plot
       selectInput(
         inputId = "LineTime",
         label = h4("Line Plot"),
         choices = c("Overall", "Year", "Month", "Day", "Hour"),
         selected = "Year"),
-      # Add a select input
+      # Add a select input for bar plot
       selectInput(
         inputId = "BarTime",
         label = h4("Bar Plot"),
         choices = c("Overall", "Year", "Month", "Weekday", "Hour"),
-        selected = "Year")
+        selected = "Year"),
+      # Add a select input for choropleth map
+      selectInput(
+        inputId = "BaseMap",
+        label = h4("Base Map"),
+        choices = c("Doctor", "Master", "Undergraduate", "Highschool", "Midschool", "Income", "KidRatio", "AdultRatio", "OldRatio", "TotalPopulation"),
+        selected = "Doctor")
     ),
     
     mainPanel(
-      plotlyOutput("line", height = 750) %>% withSpinner(type = 6),
-      plotlyOutput("bar", height = 750) %>% withSpinner(type = 6),
-      imageOutput("choropleth") %>% withSpinner(type = 6))
+      tabsetPanel(
+        tabPanel(title = "Basic statistics"),
+        tabPanel(title = "Line plot",
+                 plotlyOutput("line", height = 750) %>% withSpinner(type = 6)),
+        tabPanel(title = "Bar plot",
+                 plotlyOutput("bar", height = 750) %>% withSpinner(type = 6)),
+        tabPanel(title = "Animaion",
+                 imageOutput("choropleth") %>% withSpinner(type = 6)))
+      )
+    
   )
 ))
