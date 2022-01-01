@@ -26,8 +26,8 @@ shinyUI(fluidPage(
       selectInput(
         inputId = "BaseMap",
         label = h4("Base Map"),
-        choices = c("Income", "兒童比例", "青壯年比例", "老年比例", "物種記錄總筆數"),
-        selected = "物種記錄總筆數"),
+        choices = c("Doctor", "Master", "Undergraduate", "Highschool", "Midschool", "Income", "KidRatio", "AdultRatio", "OldRatio", "TotalPopulation"),
+        selected = "Doctor"),
       # Add a select input
       selectInput(
         inputId = "SpatialScale",
@@ -45,16 +45,12 @@ shinyUI(fluidPage(
         inputId = "BarTime",
         label = h4("Bar Plot"),
         choices = c("Overall", "Year", "Month", "Weekday", "Hour"),
-        selected = "Year"),
-      # Add a date range input
-      dateRangeInput(
-        inputId = "DateRange",
-        label = h3("Time Range"))
+        selected = "Year")
     ),
     
     mainPanel(
       plotlyOutput("line", height = 750) %>% withSpinner(type = 6),
-      plotOutput("bar", height = 750) %>% withSpinner(type = 6),
-      plotlyOutput("Heatmap", height = 750) %>% withSpinner(type = 6))
+      plotlyOutput("bar", height = 750) %>% withSpinner(type = 6),
+      imageOutput("choropleth") %>% withSpinner(type = 6))
   )
 ))

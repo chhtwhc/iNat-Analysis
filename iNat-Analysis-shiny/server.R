@@ -12,14 +12,20 @@ library(sf)
 library(xts)
 library(TSstudio)
 library(esquisse)
+library(magick)
+library(spdep)
+library(spdplyr)
+library(gganimate)
+library(transformr)
+
+showtext_auto(enable = TRUE)
 
 # setwd("D:/CHU 2.0/Forest/110-1 Space Time data Viz/Term Project/iNat-Analysis/iNat-Analysis-shiny")  # 上傳到 Shiny 時記得註解掉
 
 # Data processing
 if (TRUE){
-  # Basic data 
+  # iNaturalist data
   if (TRUE){
-    # iNaturalist data
     regionN = c("臺北市", "新北市", "基隆市", "新竹市", "桃園市", "新竹縣", "宜蘭縣")
     regionM = c("臺中市", "苗栗縣", "彰化縣", "南投縣", "雲林縣")
     regionE = c("花蓮縣", "臺東縣")
@@ -34,17 +40,6 @@ if (TRUE){
       mutate(Region = ifelse(County %in% regionN, "北部", 
                              ifelse(County %in% regionM, "中部", 
                                     ifelse(County %in% regionE, "東部", "南部"))))
-    # Education data
-    edu = read_xlsx("../Data/Data.xlsx", sheet = "Education")
-    # Tax data, represent income
-    income = read_xlsx("../Data/Data.xlsx", sheet = "Income")
-    # population data, 2015 only
-    pop = read_xlsx("../Data/Data.xlsx", sheet = "Population")
-    # Taiwan map in town scale
-    taiTown = st_read("../Data/TWPop_mainLand_4326.shp", options = "ENCODING=BIG5") %>% 
-      select(geometry, TOWN, COUNTY)
-    # Taiwan map in county scale
-    taiCounty = st_read("../Data/TaiCounty_4326.shp", options = "ENCODING=UTF-8")
   }
   # Bar plot data
   if (TRUE){
@@ -438,20 +433,77 @@ if (TRUE){
         Hour = mtsTownHour)
     )
   }
+  # Choropeth animation data
+  if (TRUE){
+    # Taiwan map and centroid in town scale
+    taiTown = st_read("../Data/TWPop_mainLand_4326.shp", options = "ENCODING=BIG5") %>% 
+      select(geometry, TOWN)
+    colnames(taiTown) = c("Town", "geometry")
+    taiTownCen = st_read("../Data/TaiTownCen_4326.shp", options = "ENCODING=UTF-8")
+    colnames(taiTownCen) = c("Town", "geometry")
+    # Taiwan map and centroid in county scale
+    taiCounty = st_read("../Data/TaiCounty_4326.shp", options = "ENCODING=UTF-8")
+    colnames(taiCounty) = c("County", "geometry")
+    taiCountyCen = st_read("../Data/TaiCountyCen_4326.shp", options = "ENCODING=UTF-8")
+    colnames(taiCountyCen) = c("County", "geometry")
+    # Taiwan map and centroid in region scale
+    taiRegion = st_read("../Data/TaiRegion_4326.shp", options = "ENCODING=UTF-8")
+    taiRegionCen = st_read("../Data/TaiRegionCen_4326.shp", options = "ENCODING=UTF-8")
+    # Taiwna map and centroid in nationwide scale
+    taiNation = st_read("../Data/TaiNation_4326.shp", options = "ENCODING=UTF-8") %>% 
+      mutate(Nation = "Taiwan") %>% 
+      select(Nation, geometry)
+    taiNationCen = st_read("../Data/TaiNationCen_4326.shp", options = "ENCODING=UTF-8") %>% 
+      mutate(Nation = "Taiwan") %>% 
+      select(Nation, geometry)
+    # Education data
+    edu = read_xlsx("../Data/Data.xlsx", sheet = "Education") %>% 
+      mutate(Year = Year + 1911) %>% 
+      mutate(Region = ifelse(County %in% regionN, "北部", 
+                             ifelse(County %in% regionM, "中部", 
+                                    ifelse(County %in% regionE, "東部", "南部")))) %>% 
+      mutate(Nation = "Taiwan")
+    # Tax data, represent income
+    income = read_xlsx("../Data/Data.xlsx", sheet = "Income") %>% 
+      mutate(Year = Year + 1911) %>% 
+      mutate(Region = ifelse(County %in% regionN, "北部", 
+                             ifelse(County %in% regionM, "中部", 
+                                    ifelse(County %in% regionE, "東部", "南部")))) %>% 
+      mutate(Nation = "Taiwan") %>% 
+      select(-TotalTax)
+    # population data, 2015 only
+    pop = read_xlsx("../Data/Data.xlsx", sheet = "Population") %>% 
+      rename(County = COUNTY, Town = TOWN) %>% 
+      mutate(Region = ifelse(County %in% regionN, "北部", 
+                             ifelse(County %in% regionM, "中部", 
+                                    ifelse(County %in% regionE, "東部", "南部")))) %>% 
+      mutate(Nation = "Taiwan", Year = 2020)
+    # Data list
+    ChoroList = list(
+      Doctor = edu %>% select(-c(Master, Undergraduate, Highschool, Midschool)),
+      Master = edu %>% select(-c(Doctor, Undergraduate, Highschool, Midschool)),
+      Undergraduate = edu %>% select(-c(Master, Doctor, Highschool, Midschool)),
+      Highschool = edu %>% select(-c(Master, Doctor, Undergraduate, Midschool)),
+      Midschool = edu %>% select(-c(Master, Doctor, Undergraduate, Highschool)),
+      Income = income,
+      KidRatio = pop %>% select(Year, Nation, Region, Town, County, KidRatio),
+      AdultRatio = pop %>% select(Year, Nation, Region, Town, County, AdultRatio),
+      OldRatio = pop %>% select(Year, Nation, Region, Town, County, OldRatio),
+      TotalPopulation = pop %>% select(Year, Nation, Region, Town, County, TotalPop)
+    )
+  }
 }
-
-
 
 # Build Shiny server
 shinyServer(function(input, output) {
   
   # Bar plot
-  output$bar = renderPlot({
+  output$bar = renderPlotly({
     
     barData = obsSTList[[input$SpatialScale]][[input$BarTime]]
     colnames(barData) = c("Space", "Time", "TotalObs")
     
-    ggplot(barData, aes(x = Time, weight = TotalObs)) +
+    p = ggplot(barData, aes(x = Time, weight = TotalObs)) +
       geom_bar(fill = "#4682B4") +
       #scale_y_continuous(trans = "sqrt") +
       labs(x = input$BarTime,
@@ -459,6 +511,8 @@ shinyServer(function(input, output) {
            title = paste("Comparation Between", input$BarTime, sep = " ")) +
       theme(plot.title = element_text(size = 14L, hjust = 0.5)) +
       facet_wrap(vars(Space))
+    
+    ggplotly(p)
     
   })
   
@@ -474,16 +528,46 @@ shinyServer(function(input, output) {
             slider = T)
   })
   
-  # Heatmap plot
-  output$heatmap = renderPlotly({
-    heatmapData = mtsList[[input$SpatialScale]][[input$LineTime]]
+  # Choropleth map animate
+  output$choropleth = renderImage({
+    outfile = tempfile(fileext = ".gif")  # A temp file to save the output and will be removed later by renderImage
     
-    if (input$SpatialScale %in% c("Region", "County") & input$LineTime %in% c("Year", "Month", "Day")){
-      for (n in 1:ncol(heatmapData)){
-        heatmapData[,n] %>% ts_heatmap()
-      }
+    if (TRUE){
+      edu = read_xlsx("../Data/Data.xlsx", sheet = "Education") %>% 
+        select(-Town) %>% 
+        group_by(Year, County) %>% 
+        summarise(Doctor = sum(Doctor),
+                  Master = sum(Master),
+                  Undergraduate = sum(Undergraduate),
+                  Highschool = sum(Highschool),
+                  Midschool = sum(Midschool)) %>% 
+        select(-c(Master, Undergraduate, Highschool, Midschool)) %>% 
+        mutate(Year = Year + 1911)
+      
+      taiCounty = st_read("../Data/TaiCounty_4326.shp", options = "ENCODING=UTF-8")
+      colnames(taiCounty) = c("County", "geometry")
+      head(taiCounty)
+      
+      taiCountyCen = st_read("../Data/TaiCountyCen_4326.shp", options = "ENCODING=UTF-8")
+      colnames(taiCountyCen) = c("County", "geometry")
+      
+      taiCountyEdu = left_join(taiCounty, edu)
+      taiCountyCenEdu = right_join(taiCountyCen, obsCountyYear)
     }
     
-  })
+    p = ggplot() +
+      geom_sf(data = taiCountyEdu, aes(fill = log(Doctor))) +
+      geom_sf(data = taiCountyCenEdu, aes(size = TotalObs), color = "red", alpha = 0.5) +
+      coord_sf(crs = st_crs(taiCountyEdu)) +
+      theme_void() +
+      scale_fill_continuous(n.breaks = 8) +
+      # gganimate
+      transition_manual(Year) +
+      labs(title = "Number of doctor in Year {current_frame}")
+    
+    anim_save("outfile.gif", animate(p))
+    
+    list(src = "outfile.gif", contentType = 'image/gif', height = 750)
+  }, deleteFile = TRUE)
   
 })
