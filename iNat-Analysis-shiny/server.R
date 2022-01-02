@@ -1,49 +1,29 @@
 # Setting environment
 library(shiny)
 library(plyr)
-library(shinycssloaders)
 library(tidyverse)
-library(shinyalert)
-library(showtext)
 library(readxl)
 library(plotly)
 library(sf)
 library(xts)
 library(TSstudio)
 library(magick)
-library(spdep)
 library(spdplyr)
 library(gganimate)
 library(transformr)
-library(ggpubr)
 library(ggConvexHull)
 library(directlabels)
 
-showtext_auto(enable = TRUE)
+showtext::showtext_auto(enable = TRUE)
 options(scipen = 999)
 
-# setwd("D:/CHU 2.0/Forest/110-1 Space Time data Viz/Term Project/iNat-Analysis/iNat-Analysis-shiny")  # 上傳到 Shiny 時記得註解掉
+setwd("D:/CHU 2.0/Forest/110-1 Space Time data Viz/Term Project/iNat-Analysis/iNat-Analysis-shiny")  # 上傳到 Shiny 時記得註解掉
 
 # Data processing
 if (TRUE){
   # iNaturalist data
   if (TRUE){
-    timeShift = as.difftime("13:00:00", "%H:%M:%S", units = "hour")
-    regionN = c("臺北市", "新北市", "基隆市", "新竹市", "桃園市", "新竹縣", "宜蘭縣")
-    regionM = c("臺中市", "苗栗縣", "彰化縣", "南投縣", "雲林縣")
-    regionE = c("花蓮縣", "臺東縣")
-    regionS = c("高雄市", "臺南市", "嘉義市", "嘉義縣", "屏東縣")
-    iNat = read_xlsx("../Data/Data.xlsx", sheet = "iNaturalist") %>%
-      filter(Town != "") %>% 
-      mutate(Time = strptime(Time, format = "%Y-%m-%dT%H:%M:%SZ")) %>%
-      mutate(Time = Time + timeShift) %>% 
-      filter(Time >= "2014-01-01 00:00:00") %>% 
-      mutate(Year = format(Time, "%Y"), Month = format(Time, "%m"),
-             Day = format(Time, "%d"), Hour = format(Time, "%H"), 
-             Weekday = format(Time, "%w")) %>% 
-      mutate(Region = ifelse(County %in% regionN, "北部", 
-                             ifelse(County %in% regionM, "中部", 
-                                    ifelse(County %in% regionE, "東部", "南部"))))
+    iNat = read_xlsx("../Data/Data.xlsx", sheet = "iNaturalist")
   }
   # Bar plot data
   if (TRUE){
@@ -461,28 +441,11 @@ if (TRUE){
       mutate(Nation = "Taiwan") %>% 
       select(Nation, geometry)
     # Education data
-    edu = read_xlsx("../Data/Data.xlsx", sheet = "Education") %>% 
-      mutate(Year = Year + 1911) %>% 
-      mutate(Region = ifelse(County %in% regionN, "北部", 
-                             ifelse(County %in% regionM, "中部", 
-                                    ifelse(County %in% regionE, "東部", "南部")))) %>% 
-      mutate(Nation = "Taiwan")
+    edu = read_xlsx("../Data/Data.xlsx", sheet = "Education")
     # Tax data, represent income
-    income = read_xlsx("../Data/Data.xlsx", sheet = "Income") %>% 
-      mutate(Year = Year + 1911) %>% 
-      mutate(Region = ifelse(County %in% regionN, "北部", 
-                             ifelse(County %in% regionM, "中部", 
-                                    ifelse(County %in% regionE, "東部", "南部")))) %>% 
-      mutate(Nation = "Taiwan") %>% 
-      select(-TotalTax) %>% 
-      rename(Income = MeanTax)
+    income = read_xlsx("../Data/Data.xlsx", sheet = "Income")
     # population data, 2015 only
-    pop = read_xlsx("../Data/Data.xlsx", sheet = "Population") %>% 
-      rename(County = COUNTY, Town = TOWN, TotalPopulation = TotalPop) %>% 
-      mutate(Region = ifelse(County %in% regionN, "北部", 
-                             ifelse(County %in% regionM, "中部", 
-                                    ifelse(County %in% regionE, "東部", "南部")))) %>% 
-      mutate(Nation = "Taiwan", Year = 2020)
+    pop = read_xlsx("../Data/Data.xlsx", sheet = "Population")
     # Data list
     ChoroList = list(
       content = list(
@@ -529,7 +492,7 @@ shinyServer(function(input, output) {
            y = "Total Observations",
            title = paste("Comparation Between", input$BarTime, sep = " ")) +
       theme(plot.title = element_text(size = 14L, hjust = 0.5),
-            axis.text.x = element_text(angle = 60, vjust = 0, hjust=1)) +
+            axis.text.x = element_text(angle = 60, vjust = 1, hjust=1)) +
       facet_wrap(vars(Space))
     
     ggplotly(p)
@@ -599,12 +562,12 @@ shinyServer(function(input, output) {
     choroData = choroData %>% 
       select(Year, SpatialScale, Value) %>% 
       group_by(Year, SpatialScale) %>% 
-      summarise(Value = sum(Value)) %>% 
-      mutate(Year = as.character(Year))
+      summarise(Value = sum(Value), Year = as.character(Year))
     
     choroObs = obsSTList[[input$SpatialScale]][["Year"]] %>% 
       filter(Year >= min(choroData$Year) & Year <= max(choroData$Year)) %>% 
-      ungroup()
+      ungroup() %>% 
+      mutate(Year = as.character(Year))
     colnames(choroObs)[which(colnames(choroObs) == input$SpatialScale)] = "SpatialScale"
     
     hullData = left_join(choroObs, choroData)
@@ -621,6 +584,38 @@ shinyServer(function(input, output) {
            title = paste(input$BaseMap, "in different year")) +
       theme(plot.title = element_text(size = 14L, hjust = 0.5))
     ggplotly(p)
+  })
+  
+  # Basic statistic
+  output$Top10Genus = renderPlot({
+
+    Top10Genus = iNat %>%
+      group_by_at(vars(input$Top10Time, "Genus")) %>%
+      summarise(TotalObs = n()) %>%
+      ungroup() %>%
+      group_by_at(input$Top10Time) %>%
+      top_n(10) %>%
+      arrange(!!rlang::sym(input$Top10Time), desc(TotalObs)) %>%
+      ungroup()
+
+    plotList = list(NA)
+
+    for (n in 1:length(unique(Top10Genus[[input$Top10Time]]))){
+      k = unique(Top10Genus[[input$Top10Time]])[[n]]
+
+      Top10Genusk = Top10Genus %>% filter(!!rlang::sym(input$Top10Time) == k)
+
+      pk = ggplot(Top10Genusk, aes(x = reorder(Genus, -TotalObs), y = TotalObs)) +
+        geom_bar(stat = "identity") +
+        labs(x = "Genus",
+             title = paste("Top Ten Genus in", input$Top10Time, k)) +
+        theme(plot.title = element_text(size = 14L, hjust = 0.5),
+              axis.text.x = element_text(angle = 60, vjust = 1, hjust=1))
+
+      plotList[[n]] = pk
+    }
+
+    ggpubr::ggarrange(plotlist = plotList, ncol = 1)
   })
   
 })

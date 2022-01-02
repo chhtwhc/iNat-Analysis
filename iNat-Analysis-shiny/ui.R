@@ -20,6 +20,12 @@ shinyUI(fluidPage(
   sidebarLayout(
     # Add sidebar
     sidebarPanel(
+      # Add a select input for top 10
+      selectInput(
+        inputId = "Top10Time",
+        label = h4("Top 10 genus"),
+        choices = c("Overall", "Year", "Month", "Weekday", "Hour"),
+        selected = "Year"),
       # Add a select input for spatial scale
       selectInput(
         inputId = "SpatialScale",
@@ -48,13 +54,14 @@ shinyUI(fluidPage(
     
     mainPanel(
       tabsetPanel(
-        tabPanel(title = "Basic statistics"),
+        tabPanel(title = "Top 10 genus",
+                 plotOutput("Top10Genus", height = 5000) %>% withSpinner(type = 6)),
         tabPanel(title = "Line plot",
                  plotlyOutput("line", height = 750) %>% withSpinner(type = 6)),
         tabPanel(title = "Bar plot",
                  plotlyOutput("bar", height = 750) %>% withSpinner(type = 6)),
         tabPanel(title = "Animaion",
-                 imageOutput("choropleth") %>% withSpinner(type = 6),
+                 imageOutput("choropleth", height = 750) %>% withSpinner(type = 6),
                  plotlyOutput("hull", height = 500) %>% withSpinner(type = 6)))
       )
     
