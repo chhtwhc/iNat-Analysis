@@ -1,3 +1,6 @@
-Data/*.Rhistory
-Data/~$iNaturalist.xlsx
+
 iNat-Analysis-shiny/.Rhistory
+*.dcf
+iNat-Analysis-shiny/rsconnect/shinyapps.io/chhtwhc/iNat-Analysis-shiny.dcf
+iNat-Analysis-shiny/rsconnect/shinyapps.io/chhtwhc/iNat-Analysis-shiny.dcf
+*.dcf

@@ -1,5 +1,6 @@
 # Setting environment
 library(shiny)
+library(plyr)
 library(shinycssloaders)
 library(tidyverse)
 library(shinyalert)
@@ -14,6 +15,9 @@ library(spdep)
 library(spdplyr)
 library(gganimate)
 library(transformr)
+library(ggpubr)
+library(ggConvexHull)
+library(directlabels)
 
 showtext_auto(enable = TRUE)
 options(scipen = 999)
@@ -541,25 +545,33 @@ shinyServer(function(input, output) {
             slider = T)
   })
   
-  # Choropleth map animate
+  # Animated choropleth map
   output$choropleth = renderImage({
     outfile = tempfile(fileext = ".gif")  # A temp file to save the output and will be removed later by renderImage
-    
+
     # prepare the data for animation
     choroData = ChoroList[["content"]][[input$BaseMap]]
+    colnames(choroData)[which(colnames(choroData) == input$BaseMap)] = "Value"
+    colnames(choroData)[which(colnames(choroData) == input$SpatialScale)] = "SpatialScale"
+    choroData = choroData %>% 
+      select(Year, SpatialScale, Value) %>% 
+      group_by(Year, SpatialScale) %>% 
+      summarise(Value = sum(Value))
+    
     choroMapPoly = ChoroList[["mapPoly"]][[input$SpatialScale]]
-    choroObs = obsSTList[[input$SpatialScale]][["Year"]] %>% 
+    colnames(choroMapPoly)[which(colnames(choroMapPoly) == input$SpatialScale)] = "SpatialScale"
+    
+    choroObs = obsSTList[[input$SpatialScale]][["Year"]] %>%
       filter(Year >= min(choroData$Year) & Year <= max(choroData$Year))
     choroMapPt = ChoroList[["mapPt"]][[input$SpatialScale]]
     
-    colnames(choroData)[which(colnames(choroData) == input$BaseMap)] = "Value"
-    
-    choroData$Value = scale(choroData$Value) %>% as.vector()
-    choroData$Value = choroData$Value * 100
-    
+
+    # choroData$Value = scale(choroData$Value) %>% as.vector()
+    # choroData$Value = choroData$Value * 100
+
     choroBaseMap = left_join(choroMapPoly, choroData)
     choroPt = right_join(choroMapPt, choroObs)
-  
+
     # Draw the animate
     p = ggplot() +
       geom_sf(data = choroBaseMap, aes(fill = Value)) +
@@ -573,8 +585,41 @@ shinyServer(function(input, output) {
 
     # Output the animate to ui.R
     anim_save("outfile.gif", animate(p))
-    list(src = "outfile.gif", contentType = 'image/gif', height = 750)
-    
+    list(src = "outfile.gif", contentType = 'image/gif', height = 650)
+
   }, deleteFile = TRUE)
   
+  # Hull plot
+  output$hull = renderPlotly({
+    choroData = ChoroList[["content"]][[input$BaseMap]]
+    colnames(choroData)[which(colnames(choroData) == input$BaseMap)] = "Value"
+    colnames(choroData)[which(colnames(choroData) == input$SpatialScale)] = "SpatialScale"
+    choroData = choroData %>% 
+      select(Year, SpatialScale, Value) %>% 
+      group_by(Year, SpatialScale) %>% 
+      summarise(Value = sum(Value)) %>% 
+      mutate(Year = as.character(Year))
+    
+    choroObs = obsSTList[[input$SpatialScale]][["Year"]] %>% 
+      filter(Year >= min(choroData$Year) & Year <= max(choroData$Year)) %>% 
+      ungroup()
+    colnames(choroObs)[which(colnames(choroObs) == input$SpatialScale)] = "SpatialScale"
+    
+    hullData = left_join(choroObs, choroData)
+    
+    # Plot
+    find_hull = function(df) df[chull(df$Value, df$TotalObs), ]
+    hulls = ddply(hullData, "Year", find_hull)
+    
+    p = ggplot(hullData, aes(x = Value, y = TotalObs, colour = Year, fill = Year)) +
+      geom_point() +
+      geom_convexhull(alpha = 0.3) +
+      labs(x = input$BaseMap,
+           y = "Total Observations",
+           title = paste(input$BaseMap, "in different year")) +
+      theme(plot.title = element_text(size = 14L, hjust = 0.5))
+    ggplotly(p)
+  })
+  
 })
+
