@@ -28,13 +28,15 @@ options(scipen = 999)
 if (TRUE){
   # iNaturalist data
   if (TRUE){
+    timeShift = as.difftime("13:00:00", "%H:%M:%S", units = "hour")
     regionN = c("臺北市", "新北市", "基隆市", "新竹市", "桃園市", "新竹縣", "宜蘭縣")
     regionM = c("臺中市", "苗栗縣", "彰化縣", "南投縣", "雲林縣")
     regionE = c("花蓮縣", "臺東縣")
     regionS = c("高雄市", "臺南市", "嘉義市", "嘉義縣", "屏東縣")
     iNat = read_xlsx("../Data/Data.xlsx", sheet = "iNaturalist") %>%
       filter(Town != "") %>% 
-      mutate(Time = strptime(Time, format = "%Y-%m-%dT%H:%M:%SZ")) %>% 
+      mutate(Time = strptime(Time, format = "%Y-%m-%dT%H:%M:%SZ")) %>%
+      mutate(Time = Time + timeShift) %>% 
       filter(Time >= "2014-01-01 00:00:00") %>% 
       mutate(Year = format(Time, "%Y"), Month = format(Time, "%m"),
              Day = format(Time, "%d"), Hour = format(Time, "%H"), 
@@ -526,11 +528,11 @@ shinyServer(function(input, output) {
       labs(x = input$BarTime,
            y = "Total Observations",
            title = paste("Comparation Between", input$BarTime, sep = " ")) +
-      theme(plot.title = element_text(size = 14L, hjust = 0.5)) +
+      theme(plot.title = element_text(size = 14L, hjust = 0.5),
+            axis.text.x = element_text(angle = 60, vjust = 0, hjust=1)) +
       facet_wrap(vars(Space))
     
     ggplotly(p)
-    
   })
   
   # Line plot

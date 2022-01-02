@@ -54,8 +54,8 @@ shinyUI(fluidPage(
         tabPanel(title = "Bar plot",
                  plotlyOutput("bar", height = 750) %>% withSpinner(type = 6)),
         tabPanel(title = "Animaion",
-                 plotlyOutput("hull", height = 500) %>% withSpinner(type = 6),
-                 imageOutput("choropleth") %>% withSpinner(type = 6)))
+                 imageOutput("choropleth") %>% withSpinner(type = 6),
+                 plotlyOutput("hull", height = 500) %>% withSpinner(type = 6)))
       )
     
   )
