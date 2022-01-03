@@ -3,15 +3,13 @@ library(shiny)
 library(shinycssloaders)
 library(dplyr)
 library(shinyalert)
-library(showtext)
-library(readxl)
 library(plotly)
 
-showtext_auto(enable = TRUE)
+showtext::showtext_auto(enable = TRUE)
 
-setwd("D:/CHU 2.0/Forest/110-1 Space Time data Viz/Term Project/iNat-Analysis/iNat-Analysis-shiny")  # 上傳 Shiny 記得註解
+# setwd("D:/CHU 2.0/Forest/110-1 Space Time data Viz/Term Project/iNat-Analysis/iNat-Analysis-shiny")  # 上傳 Shiny 記得註解
 
-genusList = read_xlsx("../Data/Data.xlsx", sheet = "iNaturalist") %>% 
+genusList = readxl::read_xlsx("Data/Data.xlsx", sheet = "iNaturalist") %>% 
   select(Genus) %>%
   filter(!is.na(Genus)) %>% 
   unique() %>% 

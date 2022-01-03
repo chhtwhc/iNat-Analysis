@@ -2,7 +2,6 @@
 library(shiny)
 library(plyr)
 library(tidyverse)
-library(readxl)
 library(plotly)
 library(sf)
 library(xts)
@@ -11,19 +10,18 @@ library(magick)
 library(spdplyr)
 library(gganimate)
 library(transformr)
-library(ggConvexHull)
 library(directlabels)
 
 showtext::showtext_auto(enable = TRUE)
 options(scipen = 999)
 
-setwd("D:/CHU 2.0/Forest/110-1 Space Time data Viz/Term Project/iNat-Analysis/iNat-Analysis-shiny")  # 上傳到 Shiny 時記得註解掉
+# setwd("D:/CHU 2.0/Forest/110-1 Space Time data Viz/Term Project/iNat-Analysis/iNat-Analysis-shiny")  # 上傳到 Shiny 時記得註解掉
 
 # Data processing
 if (TRUE){
   # iNaturalist data
   if (TRUE){
-    iNat = read_xlsx("../Data/Data.xlsx", sheet = "iNaturalist") %>% 
+    iNat = readxl::read_xlsx("Data/Data.xlsx", sheet = "iNaturalist") %>% 
       mutate(Year = as.character(Year))
   }
   # Bar plot data
@@ -421,34 +419,34 @@ if (TRUE){
   # Choropeth animation data
   if (TRUE){
     # Taiwan map and centroid in town scale
-    taiTown = st_read("../Data/TWPop_mainLand_4326.shp", options = "ENCODING=BIG5") %>% 
+    taiTown = st_read("Data/TWPop_mainLand_4326.shp", options = "ENCODING=BIG5") %>% 
       select(geometry, TOWN)
     colnames(taiTown) = c("Town", "geometry")
-    taiTownCen = st_read("../Data/TaiTownCen_4326.shp", options = "ENCODING=UTF-8")
+    taiTownCen = st_read("Data/TaiTownCen_4326.shp", options = "ENCODING=UTF-8")
     colnames(taiTownCen) = c("Town", "geometry")
     # Taiwan map and centroid in county scale
-    taiCounty = st_read("../Data/TaiCounty_4326.shp", options = "ENCODING=UTF-8")
+    taiCounty = st_read("Data/TaiCounty_4326.shp", options = "ENCODING=UTF-8")
     colnames(taiCounty) = c("County", "geometry")
-    taiCountyCen = st_read("../Data/TaiCountyCen_4326.shp", options = "ENCODING=UTF-8")
+    taiCountyCen = st_read("Data/TaiCountyCen_4326.shp", options = "ENCODING=UTF-8")
     colnames(taiCountyCen) = c("County", "geometry")
     # Taiwan map and centroid in region scale
-    taiRegion = st_read("../Data/TaiRegion_4326.shp", options = "ENCODING=UTF-8")
-    taiRegionCen = st_read("../Data/TaiRegionCen_4326.shp", options = "ENCODING=UTF-8")
+    taiRegion = st_read("Data/TaiRegion_4326.shp", options = "ENCODING=UTF-8")
+    taiRegionCen = st_read("Data/TaiRegionCen_4326.shp", options = "ENCODING=UTF-8")
     # Taiwna map and centroid in nationwide scale
-    taiNation = st_read("../Data/TaiNation_4326.shp", options = "ENCODING=UTF-8") %>% 
+    taiNation = st_read("Data/TaiNation_4326.shp", options = "ENCODING=UTF-8") %>% 
       mutate(Nation = "Taiwan") %>% 
       select(Nation, geometry)
-    taiNationCen = st_read("../Data/TaiNationCen_4326.shp", options = "ENCODING=UTF-8") %>% 
+    taiNationCen = st_read("Data/TaiNationCen_4326.shp", options = "ENCODING=UTF-8") %>% 
       mutate(Nation = "Taiwan") %>% 
       select(Nation, geometry)
     # Education data
-    edu = read_xlsx("../Data/Data.xlsx", sheet = "Education") %>% 
+    edu = readxl::read_xlsx("Data/Data.xlsx", sheet = "Education") %>% 
       mutate(Year = as.character(Year))
     # Tax data, represent income
-    income = read_xlsx("../Data/Data.xlsx", sheet = "Income") %>% 
+    income = readxl::read_xlsx("Data/Data.xlsx", sheet = "Income") %>% 
       mutate(Year = as.character(Year))
     # population data, 2015 only
-    pop = read_xlsx("../Data/Data.xlsx", sheet = "Population") %>% 
+    pop = readxl::read_xlsx("Data/Data.xlsx", sheet = "Population") %>% 
       mutate(Year = as.character(Year))
     # Data list
     ChoroList = list(
@@ -581,7 +579,7 @@ shinyServer(function(input, output) {
     
     p = ggplot(hullData, aes(x = Value, y = TotalObs, colour = Year, fill = Year)) +
       geom_point() +
-      geom_convexhull(alpha = 0.3) +
+      ggConvexHull::geom_convexhull(alpha = 0.3) +
       labs(x = input$BaseMap,
            y = "Total Observations",
            title = paste(input$BaseMap, "in different year")) +
