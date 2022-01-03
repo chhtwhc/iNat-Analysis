@@ -9,8 +9,15 @@ library(plotly)
 
 showtext_auto(enable = TRUE)
 
-# Settings of spinner
-options(spinner.color = "#0275D8", spinner.color.background = "#ffffff", spinner.size = 1)
+setwd("D:/CHU 2.0/Forest/110-1 Space Time data Viz/Term Project/iNat-Analysis/iNat-Analysis-shiny")  # 上傳 Shiny 記得註解
+
+genusList = read_xlsx("../Data/Data.xlsx", sheet = "iNaturalist") %>% 
+  select(Genus) %>%
+  filter(!is.na(Genus)) %>% 
+  unique() %>% 
+  arrange(Genus)
+
+options(spinner.color = "#0275D8", spinner.color.background = "#ffffff", spinner.size = 1)  # Settings of spinner
 
 # Build Shiny UI
 shinyUI(fluidPage(
@@ -26,6 +33,12 @@ shinyUI(fluidPage(
         label = h4("Top 10 genus"),
         choices = c("Overall", "Year", "Month", "Weekday", "Hour"),
         selected = "Year"),
+      # Add a select input for density map
+      selectInput(
+        inputId = "DensityGenus",
+        label = h4("Genus input"),
+        choices = genusList,
+        selected = "Ficus"),
       # Add a select input for spatial scale
       selectInput(
         inputId = "SpatialScale",
@@ -56,6 +69,8 @@ shinyUI(fluidPage(
       tabsetPanel(
         tabPanel(title = "Top 10 genus",
                  plotOutput("Top10Genus", height = 5000) %>% withSpinner(type = 6)),
+        tabPanel(title = "Genus Density map",
+                 plotOutput("Density", height = 750) %>% withSpinner(type = 6)),
         tabPanel(title = "Line plot",
                  plotlyOutput("line", height = 750) %>% withSpinner(type = 6)),
         tabPanel(title = "Bar plot",

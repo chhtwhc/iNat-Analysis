@@ -23,124 +23,125 @@ setwd("D:/CHU 2.0/Forest/110-1 Space Time data Viz/Term Project/iNat-Analysis/iN
 if (TRUE){
   # iNaturalist data
   if (TRUE){
-    iNat = read_xlsx("../Data/Data.xlsx", sheet = "iNaturalist")
+    iNat = read_xlsx("../Data/Data.xlsx", sheet = "iNaturalist") %>% 
+      mutate(Year = as.character(Year))
   }
   # Bar plot data
   if (TRUE){
     # Nation + Overall
     obsNationOverall = iNat %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       mutate(Nation = "Taiwan", Time = 2021) %>% 
       relocate(Nation, Time)
     obsNationOverall[is.na(obsNationOverall)] = 0
     # Nation + Year
     obsNationYear = iNat %>%
       group_by(Year) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       mutate(Nation = "Taiwan",) %>% 
       relocate(Nation)
     obsNationYear[is.na(obsNationYear)] = 0
     # Nation + Month
     obsNationMonth = iNat %>%
       group_by(Month) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       mutate(Nation = "Taiwan",) %>% 
       relocate(Nation)
     obsNationMonth[is.na(obsNationMonth)] = 0
     # Nation + Weekday
     obsNationWeekday = iNat %>%
       group_by(Weekday) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       mutate(Nation = "Taiwan",) %>% 
       relocate(Nation)
     obsNationWeekday[is.na(obsNationWeekday)] = 0
     # Nation + Hour
     obsNationHour = iNat %>%
       group_by(Hour) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       mutate(Nation = "Taiwan",) %>% 
       relocate(Nation)
     obsNationHour[is.na(obsNationHour)] = 0
     # Region + Overall
     obsRegionOverall = iNat %>%
       group_by(Region) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       mutate(Time = 2021) %>% 
       relocate(Region, Time)
     obsRegionOverall[is.na(obsRegionOverall)] = 0
     # Region + Year
     obsRegionYear = iNat %>%
       group_by(Region, Year) %>%
-      summarise(TotalObs = n())
+      dplyr::summarise(TotalObs = n())
     obsRegionYear[is.na(obsRegionYear)] = 0
     # Region + Month
     obsRegionMonth = iNat %>%
       group_by(Region, Month) %>%
-      summarise(TotalObs = n())
+      dplyr::summarise(TotalObs = n())
     obsRegionMonth[is.na(obsRegionMonth)] = 0
     # Region + Weekday
     obsRegionWeekday = iNat %>%
       group_by(Region, Weekday) %>%
-      summarise(TotalObs = n())
+      dplyr::summarise(TotalObs = n())
     obsRegionWeekday[is.na(obsRegionWeekday)] = 0
     # Region + Hour
     obsRegionHour = iNat %>%
       group_by(Region, Hour) %>%
-      summarise(TotalObs = n())
+      dplyr::summarise(TotalObs = n())
     obsRegionHour[is.na(obsRegionHour)] = 0
     # County + Overall
     obsCountyOverall = iNat %>%
       group_by(County) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       mutate(Time = 2021) %>% 
       relocate(County, Time)
     obsCountyOverall[is.na(obsCountyOverall)] = 0
     # County + Year
     obsCountyYear = iNat %>%
       group_by(County, Year) %>%
-      summarise(TotalObs = n())
+      dplyr::summarise(TotalObs = n())
     obsCountyYear[is.na(obsCountyYear)] = 0
     # County + Month
     obsCountyMonth = iNat %>%
       group_by(County, Month) %>%
-      summarise(TotalObs = n())
+      dplyr::summarise(TotalObs = n())
     obsCountyMonth[is.na(obsCountyMonth)] = 0
     # County + Weekday
     obsCountyWeekday = iNat %>%
       group_by(County, Weekday) %>%
-      summarise(TotalObs = n())
+      dplyr::summarise(TotalObs = n())
     obsCountyWeekday[is.na(obsCountyWeekday)] = 0
     # County + Hour
     obsCountyHour = iNat %>%
       group_by(County, Hour) %>%
-      summarise(TotalObs = n())
+      dplyr::summarise(TotalObs = n())
     obsCountyHour[is.na(obsCountyHour)] = 0
     # Town + Overall
     obsTownOverall = iNat %>%
       group_by(Town) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       mutate(Time = 2021) %>% 
       relocate(Town, Time)
     obsTownOverall[is.na(obsTownOverall)] = 0
     # Town + Year
     obsTownYear = iNat %>%
       group_by(Town, Year) %>%
-      summarise(TotalObs = n())
+      dplyr::summarise(TotalObs = n())
     obsTownYear[is.na(obsTownYear)] = 0
     # Town + Month
     obsTownMonth = iNat %>%
       group_by(Town, Month) %>%
-      summarise(TotalObs = n())
+      dplyr::summarise(TotalObs = n())
     obsTownMonth[is.na(obsTownMonth)] = 0
     # Town + Weekday
     obsTownWeekday = iNat %>%
       group_by(Town, Weekday) %>%
-      summarise(TotalObs = n())
+      dplyr::summarise(TotalObs = n())
     obsTownWeekday[is.na(obsTownWeekday)] = 0
     # Town + Hour
     obsTownHour = iNat %>%
       group_by(Town, Hour) %>%
-      summarise(TotalObs = n())
+      dplyr::summarise(TotalObs = n())
     obsTownHour[is.na(obsTownHour)] = 0
     
     # Data list
@@ -190,7 +191,7 @@ if (TRUE){
     # Nation + Month
     obsNationMonthW = iNat %>%
       group_by(Year, Month) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       mutate(Nation = "Taiwan",) %>% 
       relocate(Nation) %>%
       mutate(Index = paste(Year, "-", Month, "-01 01:01:01", sep = "")) %>%
@@ -203,7 +204,7 @@ if (TRUE){
     # Nation + Day
     obsNationDayW = iNat %>%
       group_by(Year, Month, Day) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       mutate(Nation = "Taiwan",) %>% 
       relocate(Nation) %>%
       mutate(Index = paste(Year, "-", Month, "-", Day, " 01:01:01", sep = "")) %>%
@@ -217,7 +218,7 @@ if (TRUE){
     # Nation + Hour
     obsNationHourW = iNat %>%
       group_by(Year, Month, Day, Hour) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       mutate(Nation = "Taiwan",) %>% 
       relocate(Nation )%>%
       mutate(Index = paste(Year, "-", Month, "-", Day, " ", Hour, ":01:01", sep = "")) %>%
@@ -245,7 +246,7 @@ if (TRUE){
     # Region + Month
     obsRegionMonthW = iNat %>%
       group_by(Region, Year, Month) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       relocate(Region) %>%
       mutate(Index = paste(Year, "-", Month, "-01 01:01:01", sep = "")) %>%
       mutate(Index = strptime(Index, format = "%Y-%m-%d %H:%M:%S")) %>%
@@ -257,7 +258,7 @@ if (TRUE){
     # Region + Day
     obsRegionDayW = iNat %>%
       group_by(Region, Year, Month, Day) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       relocate(Region) %>%
       mutate(Index = paste(Year, "-", Month, "-", Day, " 01:01:01", sep = "")) %>%
       mutate(Index = strptime(Index, format = "%Y-%m-%d %H:%M:%S")) %>%
@@ -270,7 +271,7 @@ if (TRUE){
     # Region + Hour
     obsRegionHourW = iNat %>%
       group_by(Region, Year, Month, Day, Hour) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       relocate(Region)%>%
       mutate(Index = paste(Year, "-", Month, "-", Day, " ", Hour, ":01:01", sep = "")) %>%
       mutate(Index = strptime(Index, format = "%Y-%m-%d %H:%M:%S")) %>%
@@ -299,7 +300,7 @@ if (TRUE){
     # County + Month
     obsCountyMonthW = iNat %>%
       group_by(County, Year, Month) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       relocate(County) %>%
       mutate(Index = paste(Year, "-", Month, "-01 01:01:01", sep = "")) %>%
       mutate(Index = strptime(Index, format = "%Y-%m-%d %H:%M:%S")) %>%
@@ -311,7 +312,7 @@ if (TRUE){
     # County + Day
     obsCountyDayW = iNat %>%
       group_by(County, Year, Month, Day) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       relocate(County) %>%
       mutate(Index = paste(Year, "-", Month, "-", Day, " 01:01:01", sep = "")) %>%
       mutate(Index = strptime(Index, format = "%Y-%m-%d %H:%M:%S")) %>%
@@ -324,7 +325,7 @@ if (TRUE){
     # County + Hour
     obsCountyHourW = iNat %>%
       group_by(County, Year, Month, Day, Hour) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       relocate(County)%>%
       mutate(Index = paste(Year, "-", Month, "-", Day, " ", Hour, ":01:01", sep = "")) %>%
       mutate(Index = strptime(Index, format = "%Y-%m-%d %H:%M:%S")) %>%
@@ -353,7 +354,7 @@ if (TRUE){
     # Town + Month
     obsTownMonthW = iNat %>%
       group_by(Town, Year, Month) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       relocate(Town) %>%
       mutate(Index = paste(Year, "-", Month, "-01 01:01:01", sep = "")) %>%
       mutate(Index = strptime(Index, format = "%Y-%m-%d %H:%M:%S")) %>%
@@ -365,7 +366,7 @@ if (TRUE){
     # Town + Day
     obsTownDayW = iNat %>%
       group_by(Town, Year, Month, Day) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       relocate(Town) %>%
       mutate(Index = paste(Year, "-", Month, "-", Day, " 01:01:01", sep = "")) %>%
       mutate(Index = strptime(Index, format = "%Y-%m-%d %H:%M:%S")) %>%
@@ -378,7 +379,7 @@ if (TRUE){
     # Town + Hour
     obsTownHourW = iNat %>%
       group_by(Town, Year, Month, Day, Hour) %>%
-      summarise(TotalObs = n()) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
       relocate(Town)%>%
       mutate(Index = paste(Year, "-", Month, "-", Day, " ", Hour, ":01:01", sep = "")) %>%
       mutate(Index = strptime(Index, format = "%Y-%m-%d %H:%M:%S")) %>%
@@ -441,11 +442,14 @@ if (TRUE){
       mutate(Nation = "Taiwan") %>% 
       select(Nation, geometry)
     # Education data
-    edu = read_xlsx("../Data/Data.xlsx", sheet = "Education")
+    edu = read_xlsx("../Data/Data.xlsx", sheet = "Education") %>% 
+      mutate(Year = as.character(Year))
     # Tax data, represent income
-    income = read_xlsx("../Data/Data.xlsx", sheet = "Income")
+    income = read_xlsx("../Data/Data.xlsx", sheet = "Income") %>% 
+      mutate(Year = as.character(Year))
     # population data, 2015 only
-    pop = read_xlsx("../Data/Data.xlsx", sheet = "Population")
+    pop = read_xlsx("../Data/Data.xlsx", sheet = "Population") %>% 
+      mutate(Year = as.character(Year))
     # Data list
     ChoroList = list(
       content = list(
@@ -521,7 +525,7 @@ shinyServer(function(input, output) {
     choroData = choroData %>% 
       select(Year, SpatialScale, Value) %>% 
       group_by(Year, SpatialScale) %>% 
-      summarise(Value = sum(Value))
+      dplyr::summarise(Value = sum(Value))
     
     choroMapPoly = ChoroList[["mapPoly"]][[input$SpatialScale]]
     colnames(choroMapPoly)[which(colnames(choroMapPoly) == input$SpatialScale)] = "SpatialScale"
@@ -562,12 +566,11 @@ shinyServer(function(input, output) {
     choroData = choroData %>% 
       select(Year, SpatialScale, Value) %>% 
       group_by(Year, SpatialScale) %>% 
-      summarise(Value = sum(Value), Year = as.character(Year))
+      dplyr::summarise(Value = sum(Value))
     
     choroObs = obsSTList[[input$SpatialScale]][["Year"]] %>% 
       filter(Year >= min(choroData$Year) & Year <= max(choroData$Year)) %>% 
-      ungroup() %>% 
-      mutate(Year = as.character(Year))
+      ungroup()
     colnames(choroObs)[which(colnames(choroObs) == input$SpatialScale)] = "SpatialScale"
     
     hullData = left_join(choroObs, choroData)
@@ -586,37 +589,73 @@ shinyServer(function(input, output) {
     ggplotly(p)
   })
   
-  # Basic statistic
+  # Top10Genus
   output$Top10Genus = renderPlot({
-
-    Top10Genus = iNat %>%
-      group_by_at(vars(input$Top10Time, "Genus")) %>%
-      summarise(TotalObs = n()) %>%
-      ungroup() %>%
-      group_by_at(input$Top10Time) %>%
-      top_n(10) %>%
-      arrange(!!rlang::sym(input$Top10Time), desc(TotalObs)) %>%
-      ungroup()
-
-    plotList = list(NA)
-
-    for (n in 1:length(unique(Top10Genus[[input$Top10Time]]))){
-      k = unique(Top10Genus[[input$Top10Time]])[[n]]
-
-      Top10Genusk = Top10Genus %>% filter(!!rlang::sym(input$Top10Time) == k)
-
-      pk = ggplot(Top10Genusk, aes(x = reorder(Genus, -TotalObs), y = TotalObs)) +
+    
+    if (input$Top10Time != "Overall"){
+      Top10Genus = iNat %>%
+        group_by_at(vars(input$Top10Time, "Genus")) %>%
+        dplyr::summarise(TotalObs = n()) %>%
+        ungroup() %>%
+        group_by_at(input$Top10Time) %>%
+        top_n(10) %>%
+        dplyr::arrange(!!rlang::sym(input$Top10Time), desc(TotalObs)) %>%
+        ungroup()
+      
+      plotList = list(NA)
+      
+      for (n in 1:length(unique(Top10Genus[[input$Top10Time]]))){
+        k = unique(Top10Genus[[input$Top10Time]])[[n]]
+        
+        Top10Genusk = Top10Genus %>% filter(!!rlang::sym(input$Top10Time) == k)
+        
+        pk = ggplot(Top10Genusk, aes(x = reorder(Genus, -TotalObs), y = TotalObs)) +
+          geom_bar(stat = "identity") +
+          labs(x = "Genus",
+               y = "Total Observations",
+               title = paste("Top Ten Genus in", input$Top10Time, k)) +
+          theme(plot.title = element_text(size = 14L, hjust = 0.5),
+                axis.text.x = element_text(angle = 60, vjust = 1, hjust=1))
+        
+        plotList[[n]] = pk
+      }
+      
+      ggpubr::ggarrange(plotlist = plotList, ncol = 1)
+    } else {
+      Top10Genus = iNat %>%
+        group_by_at("Genus") %>%
+        dplyr::summarise(TotalObs = n()) %>%
+        top_n(10) %>%
+        dplyr::arrange(desc(TotalObs))
+      
+      ggplot(Top10Genus, aes(x = reorder(Genus, -TotalObs), y = TotalObs)) +
         geom_bar(stat = "identity") +
         labs(x = "Genus",
-             title = paste("Top Ten Genus in", input$Top10Time, k)) +
+             y = "Total Observations",
+             title = paste("Top Ten Genus")) +
         theme(plot.title = element_text(size = 14L, hjust = 0.5),
               axis.text.x = element_text(angle = 60, vjust = 1, hjust=1))
-
-      plotList[[n]] = pk
     }
-
-    ggpubr::ggarrange(plotlist = plotList, ncol = 1)
+    
   })
   
+  # Genus Density map
+  output$Density = renderPlot({
+    iNatGenus = iNat %>% 
+      filter(Genus == input$DensityGenus)
+    
+    ggplot() +
+      geom_sf(data = taiCounty, fill = "grey") +
+      stat_density2d(data = iNatGenus, aes(fill = ..level.., x = Long, y = Lat), alpha = 0.5,
+                     geom = "polygon") +
+      geom_point(data = iNatGenus, aes(x = Long, y = Lat), color = "darkorange", alpha = 0.2) +
+      scale_fill_viridis_c() +
+      xlim(st_bbox(taiCounty)$xmin - 0.3, st_bbox(taiCounty)$xmax + 0.3) +
+      ylim(st_bbox(taiCounty)$ymin - 0.3, st_bbox(taiCounty)$ymax + 0.3) +
+      labs(x = NULL, 
+           y = NULL, 
+           title = paste("Density Map of", input$DensityGenus)) +
+      theme(plot.title = element_text(size = 14L, hjust = 0.5))
+  })
 })
 
