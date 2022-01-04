@@ -548,7 +548,8 @@ shinyServer(function(input, output) {
       scale_fill_continuous(n.breaks = 6) +
       # gganimate
       transition_manual(Year) +
-      labs(title = paste(input$BaseMap, "in Year {current_frame}"))
+      labs(title = paste(input$BaseMap, "in Year {current_frame} and total observations in each", input$SpatialScale)) +
+      theme(plot.title = element_text(size = 10L, hjust = 0.5))
 
     # Output the animate to ui.R
     anim_save("outfile.gif", animate(p))
@@ -656,4 +657,3 @@ shinyServer(function(input, output) {
       theme(plot.title = element_text(size = 14L, hjust = 0.5))
   })
 })
-
