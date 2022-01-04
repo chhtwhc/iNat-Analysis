@@ -486,9 +486,11 @@ shinyServer(function(input, output) {
     
     barData = obsSTList[[input$SpatialScale]][[input$BarTime]]
     colnames(barData) = c("Space", "Time", "TotalObs")
+    barData = mutate(barData, Time = as.factor(Time)) %>% 
+      mutate(barData, Space = as.factor(Space))
     
-    p = ggplot(barData, aes(x = Time, weight = TotalObs)) +
-      geom_bar(fill = "#4682B4") +
+    p = ggplot(barData, aes(x = Time, y = TotalObs)) +
+      geom_bar(fill = "#4682B4", stat = "identity") +
       #scale_y_continuous(trans = "sqrt") +
       labs(x = input$BarTime,
            y = "Total Observations",

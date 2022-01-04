@@ -25,6 +25,24 @@ shinyUI(fluidPage(
   sidebarLayout(
     # Add sidebar
     sidebarPanel(
+      # Add a select input for spatial scale
+      selectInput(
+        inputId = "SpatialScale",
+        label = h4("Spatial Scale"),
+        choices = c("NationWide", "Region", "County"),
+        selected = "County"),
+      # Add a select input for line plot
+      selectInput(
+        inputId = "LineTime",
+        label = h4("Line Plot"),
+        choices = c("Year", "Month", "Day", "Hour"),
+        selected = "Year"),
+      # Add a select input for bar plot
+      selectInput(
+        inputId = "BarTime",
+        label = h4("Bar Plot"),
+        choices = c("Overall", "Year", "Month", "Weekday", "Hour"),
+        selected = "Year"),
       # Add a select input for top 10
       selectInput(
         inputId = "Top10Time",
@@ -37,24 +55,6 @@ shinyUI(fluidPage(
         label = h4("Genus input"),
         choices = genusList,
         selected = "Ficus"),
-      # Add a select input for spatial scale
-      selectInput(
-        inputId = "SpatialScale",
-        label = h4("Spatial Scale"),
-        choices = c("NationWide", "Region", "County"),
-        selected = "County"),
-      # Add a select input for line plot
-      selectInput(
-        inputId = "LineTime",
-        label = h4("Line Plot"),
-        choices = c("Overall", "Year", "Month", "Day", "Hour"),
-        selected = "Year"),
-      # Add a select input for bar plot
-      selectInput(
-        inputId = "BarTime",
-        label = h4("Bar Plot"),
-        choices = c("Overall", "Year", "Month", "Weekday", "Hour"),
-        selected = "Year"),
       # Add a select input for choropleth map
       selectInput(
         inputId = "BaseMap",
@@ -65,14 +65,14 @@ shinyUI(fluidPage(
     
     mainPanel(
       tabsetPanel(
-        tabPanel(title = "Top 10 genus",
-                 plotOutput("Top10Genus", height = 5000) %>% withSpinner(type = 6)),
-        tabPanel(title = "Genus Density map",
-                 plotOutput("Density", height = 750) %>% withSpinner(type = 6)),
         tabPanel(title = "Line plot",
                  plotlyOutput("line", height = 750) %>% withSpinner(type = 6)),
         tabPanel(title = "Bar plot",
                  plotlyOutput("bar", height = 750) %>% withSpinner(type = 6)),
+        tabPanel(title = "Top 10 genus",
+                 plotOutput("Top10Genus", height = 5000) %>% withSpinner(type = 6)),
+        tabPanel(title = "Genus Density map",
+                 plotOutput("Density", height = 750) %>% withSpinner(type = 6)),
         tabPanel(title = "Animaion",
                  imageOutput("choropleth", height = 750) %>% withSpinner(type = 6),
                  plotlyOutput("hull", height = 500) %>% withSpinner(type = 6)))
