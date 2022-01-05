@@ -4,12 +4,13 @@ library(shinycssloaders)
 library(dplyr)
 library(shinyalert)
 library(plotly)
+library(shinythemes)
 
 showtext::showtext_auto(enable = TRUE)
 
-# setwd("D:/CHU 2.0/Forest/110-1 Space Time data Viz/Term Project/iNat-Analysis/iNat-Analysis-shiny")  # 上傳 Shiny 記得註解
+load("AllData.Rdata")
 
-genusList = readxl::read_xlsx("Data/Data.xlsx", sheet = "iNaturalist") %>% 
+genusList = dList[["iNaturalist"]] %>% 
   select(Genus) %>%
   filter(!is.na(Genus)) %>% 
   unique() %>% 
@@ -19,8 +20,9 @@ options(spinner.color = "#0275D8", spinner.color.background = "#ffffff", spinner
 
 # Build Shiny UI
 shinyUI(fluidPage(
+  theme = shinytheme("superhero"),
   
-  titlePanel("Use data from iNaturalist to know feature of citizen scientists in Taiwan"),
+  titlePanel("iNat Count Count"),
   
   sidebarLayout(
     # Add sidebar
