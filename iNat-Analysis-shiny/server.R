@@ -30,7 +30,7 @@ shinyServer(function(input, output) {
       mutate(Time = as.factor(Time), Space = as.factor(Space))
     
     p = ggplot(barData, aes(x = Time, y = TotalObs)) +
-      geom_bar(fill = "#4682B4", stat = "identity") +
+      geom_bar(stat = "identity") +
       #scale_y_continuous(trans = "sqrt") +
       labs(x = input$BarTime,
            y = "Total Observations",

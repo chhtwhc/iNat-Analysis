@@ -48,13 +48,13 @@ shinyUI(fluidPage(
       # Add a select input for top 10
       selectInput(
         inputId = "Top10Time",
-        label = h4("Top 10 genus"),
+        label = h4("Top 10 Genus"),
         choices = c("Overall", "Year", "Month", "Weekday", "Hour"),
         selected = "Year"),
       # Add a select input for density map
       selectInput(
         inputId = "DensityGenus",
-        label = h4("Genus input"),
+        label = h4("Genus Input"),
         choices = genusList,
         selected = "Ficus"),
       # Add a select input for choropleth map
@@ -67,15 +67,15 @@ shinyUI(fluidPage(
     
     mainPanel(
       tabsetPanel(
-        tabPanel(title = "Line plot",
+        tabPanel(title = "Line Plot",
                  plotlyOutput("line", height = 750) %>% withSpinner(type = 6)),
-        tabPanel(title = "Bar plot",
+        tabPanel(title = "Bar Plot",
                  plotlyOutput("bar", height = 750) %>% withSpinner(type = 6)),
-        tabPanel(title = "Top 10 genus",
+        tabPanel(title = "Top 10 Genus",
                  plotOutput("Top10Genus", height = 5000) %>% withSpinner(type = 6)),
-        tabPanel(title = "Genus Density map",
+        tabPanel(title = "Genus Density Map",
                  plotOutput("Density", height = 750) %>% withSpinner(type = 6)),
-        tabPanel(title = "Animaion",
+        tabPanel(title = "Animated Choropleth",
                  imageOutput("choropleth", height = 750) %>% withSpinner(type = 6),
                  plotlyOutput("hull", height = 500) %>% withSpinner(type = 6)))
       )
