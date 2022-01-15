@@ -67,6 +67,10 @@ shinyUI(fluidPage(
     
     mainPanel(
       tabsetPanel(
+        tabPanel(title = "Basic information",
+                 plotOutput("topCounty", height = 500) %>% withSpinner(type = 6),
+                 plotOutput("topgenus", height = 500) %>% withSpinner(type = 6),
+                 plotOutput("TotalDensity", height = 500) %>% withSpinner(type = 6)),
         tabPanel(title = "Line Plot",
                  plotlyOutput("line", height = 750) %>% withSpinner(type = 6)),
         tabPanel(title = "Bar Plot",

@@ -195,4 +195,64 @@ shinyServer(function(input, output) {
            title = paste("Density Map of", input$DensityGenus)) +
       theme(plot.title = element_text(size = 14L, hjust = 0.5))
   })
+  
+  # Top County
+  output$topCounty = renderPlot({
+    top5County = dList[["iNaturalist"]] %>% 
+      group_by(County) %>% 
+      dplyr::summarise(TotalObs = n()) %>% 
+      arrange(-TotalObs)
+    
+    ggplot(top5County, aes(x = reorder(County, -TotalObs), y = TotalObs)) +
+      geom_bar(fill = "#74AC00", stat = "identity") +
+      theme_minimal() + 
+      labs(x = NULL, y = "Total Observations", title = "Total Observations of County") +
+      theme(plot.title = element_text(size = 20, hjust = 0.5),
+            axis.title = element_text(angle = 0, size = 18),
+            axis.text.x = element_text(angle = 30, hjust = 0.35, size = 12),
+            axis.text.y = element_text(angle = 0, size = 12))
+  })
+  
+  # Total Density
+  output$TotalDensity = renderPlot({
+    ggplot() +
+      geom_sf(data = dList$animate$mapPoly$County, fill = "grey") +
+      stat_density2d(data = dList$iNaturalist, aes(fill = ..level.., x = Long, y = Lat), 
+                     alpha = 0.5,
+                     geom = "polygon") +
+      scale_fill_viridis_c() +
+      xlim(st_bbox(dList$animate$mapPoly$County)$xmin - 0.3, st_bbox(dList$animate$mapPoly$County)$xmax + 0.3) +
+      ylim(st_bbox(dList$animate$mapPoly$County)$ymin - 0.3, st_bbox(dList$animate$mapPoly$County)$ymax + 0.3) +
+      labs(x = NULL, 
+           y = NULL, 
+           title = "Density Map of Records") +
+      theme_minimal() +
+      theme(plot.title = element_text(size = 20, hjust = 0.5),
+            axis.title.x = element_text(size = 18, vjust = -1),
+            axis.title.y = element_text(size = 18, vjust = 1),
+            axis.text.x = element_text(angle = 0, hjust = 0.35, size = 12),
+            axis.text.y = element_text(angle = 0, size = 12))
+  })
+  
+  # TopGenus
+  output$topgenus = renderPlot({
+    Top10Genus = dList[["iNaturalist"]] %>%
+      group_by_at("Genus") %>%
+      dplyr::summarise(TotalObs = n()) %>%
+      top_n(10) %>%
+      dplyr::arrange(desc(TotalObs))
+    
+    ggplot(Top10Genus, aes(x = reorder(Genus, -TotalObs), y = TotalObs)) +
+      geom_bar(stat = "identity", fill = "#74AC00") +
+      labs(x = NULL,
+           y = "Total Observations",
+           title = paste("Top Genus")) +
+      theme_minimal() +
+      theme(plot.title = element_text(size = 20, hjust = 0.5),
+            axis.title.x = element_text(size = 18, vjust = -1),
+            axis.title.y = element_text(size = 18, vjust = 1),
+            axis.text.x = element_text(angle = 0, hjust = 0.35, size = 12),
+            axis.text.y = element_text(angle = 0, size = 12))
+  })
+  
 })
